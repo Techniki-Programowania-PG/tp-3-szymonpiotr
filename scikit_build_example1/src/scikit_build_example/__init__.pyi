@@ -1,0 +1,6 @@
+
+
+def sin() -> None:
+    """
+    Sin
+    """
