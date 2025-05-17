@@ -1,4 +1,4 @@
 
-from ._core import sin, cos, puls
+from ._core import sin_dyskretyny, sin, cos, puls, pila # type: ignore
 
-__all__ = ["sin","cos","puls"]
+__all__ = ["sin_dyskretyny","sin","cos","puls","pila"]

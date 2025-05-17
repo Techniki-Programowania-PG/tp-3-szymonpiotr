@@ -1,5 +1,10 @@
 
 
+def sin_dyskretyny() -> None:
+    """
+    Sin Dyskretyny
+    """
+
 def sin() -> None:
     """
     Sin
@@ -13,4 +18,9 @@ def cos() -> None:
 def cos() -> None:
     """
     Cos
+    """
+
+def pila() -> None:
+    """
+    Pila
     """
