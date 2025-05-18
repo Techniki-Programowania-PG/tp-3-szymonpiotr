@@ -5,7 +5,7 @@ def sin_dyskretyny() -> None:
     Sin Dyskretyny
     """
 
-def sin() -> None:
+def sinus() -> None:
     """
     Sin
     """
@@ -15,7 +15,7 @@ def cos() -> None:
     Cos
     """
 
-def cos() -> None:
+def cosinus() -> None:
     """
     Cos
     """
