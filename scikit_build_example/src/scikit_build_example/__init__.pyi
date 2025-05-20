@@ -1,8 +1,17 @@
 
-
-def sin_dyskretyny() -> None:
+def DFT() ->None:
     """
-    Sin Dyskretyny
+    DFT
+    """
+
+def SygnalD1() -> None:
+    """
+    SygnalD1
+    """
+
+def SygnalD2() -> None:
+    """
+    SygnalD2
     """
 
 def sinus() -> None:
@@ -23,4 +32,9 @@ def cosinus() -> None:
 def pila() -> None:
     """
     Pila
+    """
+
+def FiltracjaD1() ->None:
+    """
+    FiltracjaD1
     """

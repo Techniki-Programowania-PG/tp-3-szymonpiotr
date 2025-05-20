@@ -2,6 +2,9 @@
 #include <pybind11/pybind11.h>
 #include <matplot/matplot.h>
 #include <cmath>
+#include <pybind11/stl.h> 
+#include <string>
+#include <complex>
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
 
@@ -11,97 +14,151 @@ int add(int i, int j) {
 
  //dodać lepsze napisy na wykresie, moze kolor tła
 
- // nwm czy nawet tego użycwać
-void sin_dyskretyny(){
-    using namespace matplot;
+void SygnalD2(const std::vector<double>& wartoscX, const std::vector<double>& wartoscY, const std::string& OSX, const std::string& OSY, const std::string& tytul) {
+     using namespace matplot;
 
-    std::vector<double> x = linspace(0, 10, 10);
-    std::vector<double> y = transform(x, [](auto x) { return sin(2 * x); });
+    plot(wartoscX, wartoscY)->color({0.f, 0.9f, 0.f});
+    ylim({-2, +2}); 
+    grid(on);
+    title(tytul);
+    xlabel(OSX);
+    ylabel(OSY);
+    show();
+}
+void SygnalD1(const std::vector<double>& wartoscY, const std::string& OSX, const std::string& OSY, const std::string& tytul){
+     using namespace matplot;
 
-    stem(x, y)->color({0.f, 0.7f, 0.9f});
-    title("Dyskretny wykres sin(2x)");
-    xlabel("x");
-    ylabel("sin(2x)");
-    ylim({-2, +2});
+    std::vector<double> wartoscX(wartoscY.size());
+    for (size_t i=0; i<wartoscY.size(); i++)
+    {
+        wartoscX[i] = static_cast<double>(i);
+    }
+
+
+    plot(wartoscX, wartoscY)->color({0.f, 0.9f, 0.f});
+    ylim({-2, +2}); 
+    grid(on);
+    title(tytul);
+    xlabel(OSX);
+    ylabel(OSY);
     show();
 }
 
-void sinus(double start, double koniec, int probki, double czestoliwosc){
+ std::vector<std::vector<double>> sinus(double start, double koniec, int probki, double czestoliwosc) {
     using namespace matplot;
-
-    std::vector<double> x = linspace(start*M_PI, koniec*M_PI, probki);
-    std::vector<double> y = transform(x, [czestoliwosc](auto x) { return sin(2 * czestoliwosc * x); });
-    
-
-    plot(x, y)->color({0.f, 0.9f, 0.f});
-    
-    
-    ylim({-2, +2});
-    
-    title("Wykres sygnału sinusoidalnego o podanej czestoliwosci");
-    xlabel("x");
-    ylabel("sin(2πfx)");
-    show();
-}
-
-void cosinus(double start, double koniec, int probki, double czestoliwosc){
-    using namespace matplot;
+    std::vector<std::vector<double>> sygnal(2);
 
     std::vector<double> x = linspace(start, koniec, probki);
-    std::vector<double> y = transform(x, [czestoliwosc](auto x) { return cos(2 * M_PI * czestoliwosc * x); });
+    std::vector<double> y = transform(x, [czestoliwosc](auto x) { 
+        return sin(2 * M_PI * czestoliwosc * x); 
+    });
     
-    plot(x, y)->color({0.f, 0.9f, 0.f});
-    
-    ylim({-2, +2});
+    sygnal[0] = x;
+    sygnal[1] = y;
 
-    title("Wykres sygnału sinusoidalnego o podanej czestoliwosci");
-    xlabel("x");
-    ylabel("cos(2πfx)");
-    show();
+    return sygnal;
 }
 
-void puls(double start, double koniec, int probki, double czestoliwosc){
+std::vector<std::vector<double>> cosinus(double start, double koniec, int probki, double czestoliwosc) {
     using namespace matplot;
+    std::vector<std::vector<double>> sygnal(2);
 
     std::vector<double> x = linspace(start, koniec, probki);
-    std::vector<double> y = transform(x, [czestoliwosc](auto x) { return sin(2 * M_PI * czestoliwosc * x) > 0 ? 1.0 : 0.0; });
-    
-    plot(x, y)->color({0.f, 0.9f, 0.f});
-    
-    ylim({-2, +2});
-    
-    title("Wykres sygnału prostokątengo o podanej czestotliwosci");
-    xlabel("x");
-    ylabel("puls(2πfx)");
-    show();
+    std::vector<double> y = transform(x, [czestoliwosc](auto x) { 
+        return cos(2 * M_PI * czestoliwosc * x); 
+    });
+
+    sygnal[0] = x;
+    sygnal[1] = y;
+
+    return sygnal;
 }
 
-void pila(double start, double koniec, int probki, double czestoliwosc){
+std::vector<std::vector<double>> puls(double start, double koniec, int probki, double czestoliwosc) {
     using namespace matplot;
+    std::vector<std::vector<double>> sygnal(2);
 
-    std::vector<double>  x = linspace(start, koniec, probki);
-    std::vector<double> y = transform(x, [czestoliwosc](auto x) { return  2*(fmod(czestoliwosc*x, 1.0)) - 1;  });
+    std::vector<double> x = linspace(start, koniec, probki);
+    std::vector<double> y = transform(x, [czestoliwosc](auto x) { 
+        return sin(2 * M_PI * czestoliwosc * x) > 0 ? 1.0 : -1.0; 
+    });
+
+    sygnal[0] = x;
+    sygnal[1] = y;
+
+    return sygnal;
+}
+
+std::vector<std::vector<double>> pila(double start, double koniec, int probki, double czestoliwosc) {
+    using namespace matplot;
+    std::vector<std::vector<double>> sygnal(2);
+
+    std::vector<double> x = linspace(start, koniec, probki);
+    std::vector<double> y = transform(x, [czestoliwosc](auto x) { 
+        return 2 * (fmod(czestoliwosc * x, 1.0)) - 1; 
+    });
+
+    sygnal[0] = x;
+    sygnal[1] = y;
+
+    return sygnal;
+}
+
+//DFT
+
+std::vector<std::vector<double>> DFT(const std::vector<double>& wartoscY, double czestoliwosc) {
     
-    plot(x, y)->color({0.f, 0.9f, 0.f});
+    int N = wartoscY.size();
+    std::vector<std::complex<double>> X(N);
     
-    ylim({-2, +2});
-    
-    title("Wykres piłowy o podanej czestoliwsoci");
-    xlabel("x");
-    ylabel("pila");
-    show();
+    for(int i=0; i < N; i++)
+    {
+        X[i]=complex(0,0)
+        for(int k=0; k < N; k++)
+        {
+            double angle = -2 * M_PI * k * i / N;
+             X[i] += wartoscY[k] * std::complex<double>(cos(angle), sin(angle));
+        }
+    }
+    return X;
 }
 
 
+
+//Filtracja D1
+"""
+std::vector<double> FiltracjaD1(const std::vector<double>& sygnal, int maska) {
+    std::vector<double> wynik(sygnal.size(), 0.0);
+    int polowa = maska / 2;
+
+    for (size_t i = 0; i < sygnal.size(); ++i) {
+        double suma = 0.0;
+        int licznik = 0;
+
+        for (int j = -polowa; j <= polowa; ++j) {
+            if (i + j >= 0 && i + j < sygnal.size()) {
+                suma += sygnal[i + j];
+                licznik++;
+            }
+        }
+
+        wynik[i] = suma / licznik;
+    }
+    return wynik;
+}
+"""
 
 namespace py = pybind11;
 
 PYBIND11_MODULE(_core, m) {
-    m.def("sin_dyskretyny",&sin_dyskretyny);
+    m.def("DFT",&DFT)
+    m.def("SygnalD1", &SygnalD1);
+    m.def("SygnalD2", &SygnalD2);
     m.def("sinus", &sinus);
     m.def("cosinus",&cosinus);
     m.def("puls",&puls);
     m.def("pila",&pila);
+   // m.def("FiltracjaD1",&FiltracjaD1);
 
 #ifdef VERSION_INFO
     m.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);
