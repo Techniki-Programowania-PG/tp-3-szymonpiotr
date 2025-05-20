@@ -4,6 +4,11 @@ def DFT() ->None:
     DFT
     """
 
+def WidmoDFT() -> None:
+    """"
+    WidmoDFT
+    """
+
 def SygnalD1() -> None:
     """
     SygnalD1
@@ -34,7 +39,3 @@ def pila() -> None:
     Pila
     """
 
-def FiltracjaD1() ->None:
-    """
-    FiltracjaD1
-    """

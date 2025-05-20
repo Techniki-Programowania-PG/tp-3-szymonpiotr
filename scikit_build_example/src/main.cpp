@@ -3,6 +3,7 @@
 #include <matplot/matplot.h>
 #include <cmath>
 #include <pybind11/stl.h> 
+#include <pybind11/complex.h>
 #include <string>
 #include <complex>
 #define STRINGIFY(x) #x
@@ -106,52 +107,51 @@ std::vector<std::vector<double>> pila(double start, double koniec, int probki, d
 
 //DFT
 
-std::vector<std::vector<double>> DFT(const std::vector<double>& wartoscY, double czestoliwosc) {
-    
+std::vector<std::complex<double>> DFT(const std::vector<double>& wartoscY) {
     int N = wartoscY.size();
     std::vector<std::complex<double>> X(N);
+    const double PI = 3.14159265358979323846;
     
-    for(int i=0; i < N; i++)
+    for(int i = 0; i < N; i++) 
     {
-        X[i]=complex(0,0)
-        for(int k=0; k < N; k++)
+        X[i] = std::complex<double>(0.0, 0.0);
+        for(int k = 0; k < N; k++) 
         {
-            double angle = -2 * M_PI * k * i / N;
-             X[i] += wartoscY[k] * std::complex<double>(cos(angle), sin(angle));
+            double kat = -2 * PI * k * i / N;
+            X[i] += wartoscY[k] * std::complex<double>(cos(kat), sin(kat));
         }
     }
     return X;
 }
 
-
-
-//Filtracja D1
-"""
-std::vector<double> FiltracjaD1(const std::vector<double>& sygnal, int maska) {
-    std::vector<double> wynik(sygnal.size(), 0.0);
-    int polowa = maska / 2;
-
-    for (size_t i = 0; i < sygnal.size(); ++i) {
-        double suma = 0.0;
-        int licznik = 0;
-
-        for (int j = -polowa; j <= polowa; ++j) {
-            if (i + j >= 0 && i + j < sygnal.size()) {
-                suma += sygnal[i + j];
-                licznik++;
-            }
-        }
-
-        wynik[i] = suma / licznik;
+void WidmoDFT(const std::vector<std::complex<double>>& dft_wynik, double czestotliwosc_probkowania) {
+    using namespace matplot;
+    
+    int N = dft_wynik.size();
+    std::vector<double> amplitudy(N/2);
+    std::vector<double> czestotliwosci(N/2);
+    
+   
+    for(int k = 0; k < N/2; ++k) {
+        amplitudy[k] = 2.0 * std::abs(dft_wynik[k]) / N;
+        czestotliwosci[k] = k * czestotliwosc_probkowania / N;
     }
-    return wynik;
+    
+    plot(czestotliwosci, amplitudy)->color({0.f, 0.9f, 0.f});
+    
+    title("Widmo amplitudowe DFT");
+    xlabel("Częstotliwość [Hz]");
+    ylabel("Amplituda");
+    grid(on);
+    show();
 }
-"""
+
 
 namespace py = pybind11;
 
 PYBIND11_MODULE(_core, m) {
-    m.def("DFT",&DFT)
+    m.def("DFT",&DFT);
+    m.def("WidmoDFT",&WidmoDFT);
     m.def("SygnalD1", &SygnalD1);
     m.def("SygnalD2", &SygnalD2);
     m.def("sinus", &sinus);
