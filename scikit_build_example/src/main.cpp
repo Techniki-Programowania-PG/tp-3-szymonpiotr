@@ -110,14 +110,13 @@ std::vector<std::vector<double>> pila(double start, double koniec, int probki, d
 std::vector<std::complex<double>> DFT(const std::vector<double>& wartoscY) {
     int N = wartoscY.size();
     std::vector<std::complex<double>> X(N);
-    const double PI = 3.14159265358979323846;
     
     for(int i = 0; i < N; i++) 
     {
         X[i] = std::complex<double>(0.0, 0.0);
         for(int k = 0; k < N; k++) 
         {
-            double kat = -2 * PI * k * i / N;
+            double kat = -2 * M_PI * k * i / N;
             X[i] += wartoscY[k] * std::complex<double>(cos(kat), sin(kat));
         }
     }
