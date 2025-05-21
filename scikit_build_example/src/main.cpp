@@ -125,22 +125,22 @@ std::vector<std::complex<double>> DFT(const std::vector<double>& wartoscY) {
 
 void WidmoDFT(const std::vector<std::complex<double>>& dft_wynik, double czestotliwosc_probkowania) {
     using namespace matplot;
-    
+
     int N = dft_wynik.size();
-    std::vector<double> amplitudy(N/2);
-    std::vector<double> czestotliwosci(N/2);
-    
-   
-    for(int k = 0; k < N/2; ++k) {
-        amplitudy[k] = 2.0 * std::abs(dft_wynik[k]) / N;
-        czestotliwosci[k] = k * czestotliwosc_probkowania / N;
+    std::vector<double> amplitudy(N);
+    std::vector<double> czestotliwosci(N);
+
+    for (int k = 0; k < N; ++k) {
+       
+        int przesuniecie = (k + N / 2) % N;
+        czestotliwosci[k] = (k - N / 2) * czestotliwosc_probkowania / N;
+        amplitudy[k] = std::abs(dft_wynik[przesuniecie]) / N;  
     }
-    
+
     plot(czestotliwosci, amplitudy)->color({0.f, 0.9f, 0.f});
-    
-    title("Widmo amplitudowe DFT");
     xlabel("Częstotliwość [Hz]");
     ylabel("Amplituda");
+    title("Centrowane widmo amplitudowe DFT");
     grid(on);
     show();
 }
