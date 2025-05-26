@@ -145,6 +145,20 @@ void WidmoDFT(const std::vector<std::complex<double>>& dft_wynik, double czestot
     show();
 }
 
+std::vector<double> IDFT(const std::vector<std::complex<double>>& DFT) {
+    int N = DFT.size();
+    std::vector<double> sygnal_z_DFT(N);
+
+    for (int n = 0; n < N; ++n) {
+        std::complex<double> suma(0.0, 0.0);
+        for (int k = 0; k < N; ++k) {
+            double kat = 2 * M_PI * k * n / N;
+            suma += DFT[k] * std::complex<double>(cos(kat), sin(kat));
+        }
+        sygnal_z_DFT[n] = suma.real() / N;  
+    }
+    return sygnal_z_DFT;
+}
 
 namespace py = pybind11;
 
@@ -157,7 +171,8 @@ PYBIND11_MODULE(_core, m) {
     m.def("cosinus",&cosinus);
     m.def("puls",&puls);
     m.def("pila",&pila);
-   // m.def("FiltracjaD1",&FiltracjaD1);
+    m.def("IDFT", &IDFT); 
+    // m.def("FiltracjaD1",&FiltracjaD1);
 
 #ifdef VERSION_INFO
     m.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);

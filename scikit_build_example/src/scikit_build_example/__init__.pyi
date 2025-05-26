@@ -1,4 +1,9 @@
 
+def IDFT() -> None:
+    """
+    IDFT
+    """
+
 def DFT() ->None:
     """
     DFT
