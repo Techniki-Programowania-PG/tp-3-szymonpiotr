@@ -39,8 +39,18 @@ def cosinus() -> None:
     Cos
     """
 
+def Autokorelcja_sygnalu() -> None:
+    """
+    Autokorelcja_sygnalu
+    """
+    
 def pila() -> None:
     """
     Pila
+    """
+
+def FiltracjaD1() -> None:
+    """
+    FiltracjaD1
     """
 

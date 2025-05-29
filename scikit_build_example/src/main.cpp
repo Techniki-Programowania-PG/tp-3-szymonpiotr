@@ -9,10 +9,6 @@
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
 
-int add(int i, int j) {
-    return i + j;
-}
-
  //dodać lepsze napisy na wykresie, moze kolor tła
 
 void SygnalD2(const std::vector<double>& wartoscX, const std::vector<double>& wartoscY, const std::string& OSX, const std::string& OSY, const std::string& tytul) {
@@ -38,6 +34,7 @@ void SygnalD1(const std::vector<double>& wartoscY, const std::string& OSX, const
 
     plot(wartoscX, wartoscY)->color({0.f, 0.9f, 0.f});
     ylim({-2, +2}); 
+    xlim({0, 1000}); 
     grid(on);
     title(tytul);
     xlabel(OSX);
@@ -105,8 +102,6 @@ std::vector<std::vector<double>> pila(double start, double koniec, int probki, d
     return sygnal;
 }
 
-//DFT
-
 std::vector<std::complex<double>> DFT(const std::vector<double>& wartoscY) {
     int N = wartoscY.size();
     std::vector<std::complex<double>> X(N);
@@ -127,21 +122,26 @@ void WidmoDFT(const std::vector<std::complex<double>>& dft_wynik, double czestot
     using namespace matplot;
 
     int N = dft_wynik.size();
-    std::vector<double> amplitudy(N);
-    std::vector<double> czestotliwosci(N);
+    int polowa = N / 2;
 
-    for (int k = 0; k < N; ++k) {
-       
-        int przesuniecie = (k + N / 2) % N;
-        czestotliwosci[k] = (k - N / 2) * czestotliwosc_probkowania / N;
-        amplitudy[k] = std::abs(dft_wynik[przesuniecie]) / N;  
+    std::vector<double> energia(polowa);
+    std::vector<double> czestotliwosci(polowa);
+
+    for (int k = 0; k < polowa; ++k) {
+        czestotliwosci[k] = static_cast<double>(k) * czestotliwosc_probkowania / N;
+        energia[k] = std::norm(dft_wynik[k]);  
     }
 
-    plot(czestotliwosci, amplitudy)->color({0.f, 0.9f, 0.f});
+    auto p = plot(czestotliwosci, energia);
+    p->color({1.f, 0.2f, 0.f});
     xlabel("Częstotliwość [Hz]");
-    ylabel("Amplituda");
-    title("Centrowane widmo amplitudowe DFT");
+    ylabel("Energia");
+    title("Widmo energetyczne sygnału (DFT)");
     grid(on);
+
+    xlim({0, czestotliwosc_probkowania / 2});
+    ylim({0, *std::max_element(energia.begin(), energia.end()) * 1.05});
+
     show();
 }
 
@@ -160,6 +160,51 @@ std::vector<double> IDFT(const std::vector<std::complex<double>>& DFT) {
     return sygnal_z_DFT;
 }
 
+std::vector<std::vector<double>> Autokorelcja_sygnalu(const std::vector<double>& sygnal, double czestotliwosc_probkowania) {
+    int N = sygnal.size();
+    std::vector<double> lagi;
+    std::vector<double> wartosci;
+
+    for (int lag = -(N - 1); lag < N; ++lag) {
+        double suma = 0.0;
+        int start = std::max(0, -lag);
+        int end = std::min(N, N - lag);
+        for (int i = start; i < end; ++i) {
+            suma += sygnal[i] * sygnal[i + lag];
+        }
+        lagi.push_back(static_cast<double>(lag) / czestotliwosc_probkowania);  
+        wartosci.push_back(suma / N);
+    }
+
+    std::vector<std::vector<double>> wynik(2);
+    wynik[0] = lagi;
+    wynik[1] = wartosci;
+
+    return wynik;
+}
+
+std::vector<double> FiltracjaD1(const std::vector<double>& sygnal) {
+    
+    const int N = 5; 
+    std::vector<double> filtr(sygnal.size(), 0.0);
+
+    for (size_t i = 0; i < sygnal.size(); ++i) {
+        double suma = 0.0;
+        int licznik = 0;
+        
+        
+        for (int j = static_cast<int>(i) - N/2; j <= static_cast<int>(i) + N/2; ++j) {
+            if (j >= 0 && j < static_cast<int>(sygnal.size())) {
+                suma += sygnal[j];
+                licznik++;
+            }
+        }
+        filtr[i] = (licznik > 0) ? suma / licznik : 0.0;
+    }
+
+    return filtr;
+}
+
 namespace py = pybind11;
 
 PYBIND11_MODULE(_core, m) {
@@ -171,9 +216,11 @@ PYBIND11_MODULE(_core, m) {
     m.def("cosinus",&cosinus);
     m.def("puls",&puls);
     m.def("pila",&pila);
+    m.def("FiltracjaD1", &FiltracjaD1);
+    m.def("Autokorelcja_sygnalu",&Autokorelcja_sygnalu);
     m.def("IDFT", &IDFT); 
-    // m.def("FiltracjaD1",&FiltracjaD1);
-
+    
+    
 #ifdef VERSION_INFO
     m.attr("__version__") = MACRO_STRINGIFY(VERSION_INFO);
 #else
