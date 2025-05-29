@@ -29,9 +29,9 @@ def sinus() -> None:
     Sin
     """
 
-def cos() -> None:
+def prostokatny() -> None:
     """
-    Cos
+    prostokatny
     """
 
 def cosinus() -> None:

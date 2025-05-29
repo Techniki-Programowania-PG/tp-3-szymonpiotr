@@ -9,7 +9,7 @@
 #define STRINGIFY(x) #x
 #define MACRO_STRINGIFY(x) STRINGIFY(x)
 
- //dodać lepsze napisy na wykresie, moze kolor tła
+
 
 void SygnalD2(const std::vector<double>& wartoscX, const std::vector<double>& wartoscY, const std::string& OSX, const std::string& OSY, const std::string& tytul) {
      using namespace matplot;
@@ -72,7 +72,7 @@ std::vector<std::vector<double>> cosinus(double start, double koniec, int probki
     return sygnal;
 }
 
-std::vector<std::vector<double>> puls(double start, double koniec, int probki, double czestoliwosc) {
+std::vector<std::vector<double>> prostokatny(double start, double koniec, int probki, double czestoliwosc) {
     using namespace matplot;
     std::vector<std::vector<double>> sygnal(2);
 
@@ -214,7 +214,7 @@ PYBIND11_MODULE(_core, m) {
     m.def("SygnalD2", &SygnalD2);
     m.def("sinus", &sinus);
     m.def("cosinus",&cosinus);
-    m.def("puls",&puls);
+    m.def("prostokatny",&prostokatny);
     m.def("pila",&pila);
     m.def("FiltracjaD1", &FiltracjaD1);
     m.def("Autokorelcja_sygnalu",&Autokorelcja_sygnalu);
