@@ -11,18 +11,22 @@
 
 
 
-void SygnalD2(const std::vector<double>& wartoscX, const std::vector<double>& wartoscY, const std::string& OSX, const std::string& OSY, const std::string& tytul) {
+void SygnalD2(const std::vector<double>& wartoscX, const std::vector<double>& wartoscY, const std::string& OSX, const std::string& OSY, const std::string& tytul, const std::string& nazwa_pliku) {
      using namespace matplot;
 
     plot(wartoscX, wartoscY)->color({0.f, 0.9f, 0.f});
     ylim({-2, +2}); 
+    auto [minX, maxX] = std::minmax_element(wartoscX.begin(), wartoscX.end());
+    double margin = (*maxX - *minX) * 0.05;  
+    xlim({*minX - margin, *maxX + margin});
     grid(on);
     title(tytul);
     xlabel(OSX);
     ylabel(OSY);
-    show();
+    save(nazwa_pliku);
 }
-void SygnalD1(const std::vector<double>& wartoscY, const std::string& OSX, const std::string& OSY, const std::string& tytul){
+
+void SygnalD1(const std::vector<double>& wartoscY, const std::string& OSX, const std::string& OSY, const std::string& tytul, const std::string& nazwa_pliku){
      using namespace matplot;
 
     std::vector<double> wartoscX(wartoscY.size());
@@ -39,7 +43,7 @@ void SygnalD1(const std::vector<double>& wartoscY, const std::string& OSX, const
     title(tytul);
     xlabel(OSX);
     ylabel(OSY);
-    show();
+    save(nazwa_pliku);
 }
 
  std::vector<std::vector<double>> sinus(double start, double koniec, int probki, double czestoliwosc) {
@@ -118,7 +122,7 @@ std::vector<std::complex<double>> DFT(const std::vector<double>& wartoscY) {
     return X;
 }
 
-void WidmoDFT(const std::vector<std::complex<double>>& dft_wynik, double czestotliwosc_probkowania) {
+void WidmoDFT(const std::vector<std::complex<double>>& dft_wynik, double czestotliwosc_probkowania, const std::string& nazwa_pliku) {
     using namespace matplot;
 
     int N = dft_wynik.size();
@@ -142,7 +146,7 @@ void WidmoDFT(const std::vector<std::complex<double>>& dft_wynik, double czestot
     xlim({0, czestotliwosc_probkowania / 2});
     ylim({0, *std::max_element(energia.begin(), energia.end()) * 1.05});
 
-    show();
+    save(nazwa_pliku);
 }
 
 std::vector<double> IDFT(const std::vector<std::complex<double>>& DFT) {
@@ -167,11 +171,14 @@ std::vector<std::vector<double>> Autokorelcja_sygnalu(const std::vector<double>&
 
     for (int lag = -(N - 1); lag < N; ++lag) {
         double suma = 0.0;
-        int start = std::max(0, -lag);
-        int end = std::min(N, N - lag);
-        for (int i = start; i < end; ++i) {
-            suma += sygnal[i] * sygnal[i + lag];
+
+        for (int i = 0; i < N; ++i) {
+            int j = i + lag;
+            if (j >= 0 && j < N) {
+                suma += sygnal[i] * sygnal[j];
+            }
         }
+
         lagi.push_back(static_cast<double>(lag) / czestotliwosc_probkowania);  
         wartosci.push_back(suma / N);
     }
@@ -204,6 +211,7 @@ std::vector<double> FiltracjaD1(const std::vector<double>& sygnal) {
 
     return filtr;
 }
+
 
 namespace py = pybind11;
 
